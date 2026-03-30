@@ -1,6 +1,5 @@
 #include "print.h"
 #include <stdio.h>
-#include <string.h>
 
 /* ── Table des résultats ────────────────────────────────────────────────────
  */

@@ -6,7 +6,7 @@ Process scheduling simulator with five algorithms, metrics computation, and Gant
 
 main.c — Interactive entry point; reads process list and algorithm choice via stdin.
 process.h — Shared type definitions: `Proc`, `Slot`, `Result`.
-sched.h / sched.c — Five scheduling algorithms: FCFS, SJF, priority, SRT, round-robin.
+sched.h / sched.c — Five scheduling algorithms: FCFS, SPF, priority, SRT, round-robin.
 metrics.h / metrics.c — Metrics functions: TR, TA, TRM, TAM (response and wait times).
 print.h / print.c — Output functions: tabular summary and Gantt chart display.
 Makefile — Targets: `all`, `clean`, `re`.
@@ -101,10 +101,10 @@ r->procs[i].fin = t;
 
 If the process has not yet arrived (t < da), advance time to its arrival. Record a slot from that time to time + execution_time. Update the completion time. This is the crux: CPU idles if needed, then runs the next arrived process to completion.
 
-### SJF (Shortest Job First, non-preemptive)
+### SPF (Shortest process First, non-preemptive)
 
 ```c
-void sjf(Proc procs[], int n, Result *r)
+void SPF(Proc procs[], int n, Result *r)
 ```
 
 At each decision point, scan all unscheduled, arrived processes and pick the one with minimum execution time. If no process is ready, advance time by 1 and retry. Non-preemptive: once a process starts, it runs to completion before the next one is chosen.
@@ -141,7 +141,7 @@ Scan all processes and keep the one with the minimum `prio` among those arrived 
 void srt(Proc procs[], int n, Result *r)
 ```
 
-At each unit of time, select the arrived, incomplete process with the smallest remaining execution time. Run it for 1 unit. If the same process is chosen again, merge the new 1-unit slot with the previous one; otherwise start a fresh slot. This preemptive strategy minimizes average response time under variable job lengths.
+At each unit of time, select the arrived, incomplete process with the smallest remaining execution time. Run it for 1 unit. If the same process is chosen again, merge the new 1-unit slot with the previous one; otherwise start a fresh slot. This preemptive strategy minimizes average response time under variable process lengths.
 
 ```c
 if (best != last && r->nb_slots > 0 &&
@@ -265,7 +265,7 @@ main
   
   ↓ (switch on choice)
   
-  fcfs |  sjf  |  priorite  |  srt  |  rr
+  fcfs |  SPF  |  priorite  |  srt  |  rr
     │       │       │        │       │
     └───┬───┴───┬───┴───┬────┴───┬───┘
         │       │       │        │
@@ -315,5 +315,4 @@ TRM = 7.00
 TAM = 3.67
 Changements de contexte = 6
 ```
-
 

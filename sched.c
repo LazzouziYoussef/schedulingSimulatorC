@@ -40,10 +40,10 @@ void fcfs(Proc procs[], int n, Result *r) {
   }
 }
 
-/* ── SJF (non préemptif) ────────────────────────────────────────────────────
+/* ── SPF (non préemptif) ────────────────────────────────────────────────────
  */
 
-void sjf(Proc procs[], int n, Result *r) {
+void spf(Proc procs[], int n, Result *r) {
   init_result(r, procs, n);
   qsort(r->procs, n, sizeof(Proc), cmp_da);
   int done[MAX_PROC] = {0};

@@ -31,7 +31,7 @@ int main(void) {
 
   printf("\nAlgorithme:\n");
   printf("  1. FCFS\n");
-  printf("  2. SJF\n");
+  printf("  2. SPF\n");
   printf("  3. Priorité (non préemptif)\n");
   printf("  4. SRT (préemptif)\n");
   printf("  5. Round Robin\n");
@@ -45,8 +45,8 @@ int main(void) {
     fcfs(procs, n, &r);
     break;
   case 2:
-    printf("\n--- SJF ---\n");
-    sjf(procs, n, &r);
+    printf("\n--- SPF ---\n");
+    spf(procs, n, &r);
     break;
   case 3:
     printf("\n--- Priorité ---\n");
