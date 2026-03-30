@@ -13,6 +13,14 @@ Makefile — Targets: `all`, `clean`, `re`.
 
 ## Build
 
+Clone the repository and build:
+
+```bash
+git clone https://github.com/LazzouziYoussef/schedulingSimulatorC
+cd schedulingSimulatorC
+make
+```
+
 ### Targets
 
 ```makefile
@@ -232,17 +240,21 @@ Outputs a tabular summary: process name, arrival time, execution time, completio
 
 ### print_gantt
 
-Uses a two-pass algorithm. The first pass iterates the gantt slot array and marks execution intervals in a per-process boolean array. The second pass (the render loop) prints each process row as a sequence of characters: dashes (`-`) for execution, spaces otherwise. A time scale with markers appears below.
+Uses a two-pass algorithm. The first pass builds a boolean array `active[t]` for each process, marking which time units it was scheduled. The second pass renders each process as a row with dashes (`-`) for execution, spaces for idle.
 
 ```c
 for (int s = 0; s < r->nb_slots; s++) {
     if (r->gantt[s].proc_idx != i) continue;
     for (int t = r->gantt[s].t_start; t < r->gantt[s].t_end; t++)
-        line[t] = '-';
+        active[t] = 1;
 }
+printf("%-2s: ", r->procs[i].name);
+for (int t = 0; t < t_max; t++)
+    printf("%-3c", active[t] ? '-' : ' ');
+printf("\n");
 ```
 
-For each slot, check if it belongs to the current process. If so, fill the interval from t_start to t_end (exclusive) with dashes. This fills a pre-allocated line buffer; repeated for each process. The result is a visual, character-per-unit-time representation aligned with the time scale.
+For each slot, if it belongs to the current process, mark the interval from t_start to t_end (exclusive) as active in the boolean array. Then, iterate the time axis and print either a dash or space using `%-3c` formatting (3 characters per unit time, left-aligned). Each process row aligns with the time scale header above.
 
 ## Execution Path
 
@@ -267,11 +279,10 @@ main
         
         ├─→ print_gantt(Result)
         │     1. Compute t_max from gantt slots
-        │     2. For each process i:
-        │        ├─ Allocate line[t_max]
-        │        ├─ Scan gantt[] and mark '-' in line
-        │        └─ Print "name|line"
-        │     3. Print time scale below
+        │     2. Print header: t:  0  1  2  3  ...
+        │     3. For each process i:
+        │        ├─ Build active[t] array from gantt slots
+        │        ├─ Print "NAME: " row with %-3c columns
         │
         └─→ print_table(Result)
               1. Print header row
@@ -286,16 +297,23 @@ The Result structure is the central artifact: algorithms write to it, and print 
 
 ## Example Output
 
-Round-robin with quantum=1 on five processes (A–E arriving at time 0–4, execution times 3–1 units):
+Round-robin with quantum=2 on three processes (A arrives at 0 with TE 5, B at 2 with TE 3, C at 4 with TE 2):
 
 ```
-A     |- -   -    
-B     | -  -      
-C     |   -       
-D     |     -  -  
-E     |       - --
-      +-----------
-       01234567891011
+t:  0  1  2  3  4  5  6  7  8  9  
+A : -  -        -  -           -  
+B :       -  -              -     
+C :                   -  -        
+
+Processus  DA     TE     Fin    TR=Fin-DA    TA=TR-TE
+------------------------------------------------------------
+A          0      5      10     10           5       
+B          2      3      9      7            4       
+C          4      2      8      4            2       
+
+TRM = 7.00
+TAM = 3.67
+Changements de contexte = 6
 ```
 
 
